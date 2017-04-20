@@ -1,0 +1,14 @@
+<resources>
+    <string name="app_name">SignalWatcher</string>
+    <string name="title_home">Home</string>
+    <string name="title_wifi">WiFi</string>
+    <string name="title_notifications">Notifications</string>
+
+    <string name="tv_label_cell_location">Cell Location</string>
+    <string name="tv_label_singal_strength">Signal Strength</string>
+    <string name="tv_label_service_state">Service State</string>
+
+
+
+
+</resources>
