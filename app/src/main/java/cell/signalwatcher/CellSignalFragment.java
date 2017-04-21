@@ -166,6 +166,7 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
 
         if (!registered) {
             getActivity().registerReceiver(broadcastClass, new IntentFilter(BROADCAST_PACKAGE));
+            registered = true;
         }
     }
 
