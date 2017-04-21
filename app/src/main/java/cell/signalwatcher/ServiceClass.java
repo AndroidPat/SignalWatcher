@@ -15,6 +15,22 @@ import android.telephony.cdma.CdmaCellLocation;
 import android.telephony.gsm.GsmCellLocation;
 import android.util.Log;
 
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
+import static cell.signalwatcher.CellSignalFragment.BROADCAST_PACKAGE;
+
 /**
  * Background service class
  */
@@ -29,6 +45,8 @@ public class ServiceClass extends Service {
     public static int lac = 0;
     // Binder given to clients
     private final IBinder mBinder = new LocalBinder();
+    JSONArray resultsLog = new JSONArray();
+
 
     /**
      * Class used for the client Binder.  Because we know this service always
@@ -61,6 +79,16 @@ public class ServiceClass extends Service {
         mTelephonyManager = (TelephonyManager) getSystemService(Context.TELEPHONY_SERVICE);
 
         startListenersPhoneState();
+/*
+ * method to test is the file is written to
+ */
+//        try {
+//            readFileTest();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        } catch (JSONException e) {
+//            e.printStackTrace();
+//        }
 
         return flags;
     }
@@ -82,6 +110,20 @@ public class ServiceClass extends Service {
                 }
             }
 
+
+            Intent i = new Intent(BROADCAST_PACKAGE);
+            sendBroadcast(i);
+
+            try {
+                try {
+                    writeToFile();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
+
             Log.v("koko", String.valueOf(cid) + "  " + String.valueOf(lac));
 
         }
@@ -98,6 +140,19 @@ public class ServiceClass extends Service {
                     signalStrengthDbm = signalStrength.getGsmSignalStrength();
             } else {
                 signalStrengthDbm = signalStrength.getCdmaDbm();
+            }
+
+            Intent i = new Intent(BROADCAST_PACKAGE);
+            sendBroadcast(i);
+
+            try {
+                try {
+                    writeToFile();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
             }
 
             Log.v("koko", String.valueOf(signalStrengthDbm));
@@ -120,8 +175,117 @@ public class ServiceClass extends Service {
                     status = "Powered Off";
                     break;
             }
+
+            Intent i = new Intent(BROADCAST_PACKAGE);
+            sendBroadcast(i);
+
+            try {
+                try {
+                    writeToFile();
+                } catch (FileNotFoundException e) {
+                    e.printStackTrace();
+                }
+            } catch (JSONException e) {
+                e.printStackTrace();
+            }
             Log.v("koko", status);
         }
 
+    }
+
+
+    public void writeToFile() throws JSONException, FileNotFoundException {
+        String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
+
+        File file = new File(getFilesDir(), "resultsDat130");
+        if (!file.exists()) {
+            FileOutputStream fos = null;
+            try {
+                fos = openFileOutput("resultsDat130", MODE_PRIVATE);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+            }
+            try {
+                fos.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        FileInputStream fis = null;
+        try {
+            fis = openFileInput("resultsDat130");
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+        String line = null, input = "";
+        try {
+            while ((line = reader.readLine()) != null)
+                input += line;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            fis.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        resultsLog = new JSONArray();
+        if (!input.equals("")) {
+            resultsLog = new JSONArray(input);
+        }
+
+        JSONObject readings;
+        readings = new JSONObject();
+        readings.put("cid", cid);
+        readings.put("lac", lac);
+        readings.put("signalStrengthDbm", signalStrengthDbm);
+        readings.put("status", status);
+        readings.put("date", date);
+        resultsLog.put(readings);
+
+        String text = resultsLog.toString();
+
+        FileOutputStream fos = openFileOutput("resultsDat130", MODE_PRIVATE);
+
+
+        try {
+            fos.write(text.getBytes());
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        try {
+            fos.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void readFileTest() throws IOException, JSONException {
+        String[] resultingArray;
+
+
+        FileInputStream fis = openFileInput("resultsDat130");
+        BufferedReader reader = new BufferedReader(new InputStreamReader(fis));
+        String line = null, input = "";
+        while ((line = reader.readLine()) != null)
+            input += line;
+        reader.close();
+        fis.close();
+
+        JSONArray resultsLog = new JSONArray(input);
+
+        resultingArray = new String[resultsLog.length()];
+        for (int i = 0; i < resultsLog.length(); i++) {
+            resultingArray[i] = resultsLog.getJSONObject(i).getString("status");
+            Log.v("readTestFinal", resultingArray[i]);
+        }
     }
 }

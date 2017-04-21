@@ -2,9 +2,11 @@ package cell.signalwatcher;
 
 
 import android.Manifest;
+import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -35,10 +37,14 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
 
     public static final int REQUEST_READ_PHONE_STATE = 0;
     public static final int REQUEST_COARSE_LOCATION = 1;
+    public static final String BROADCAST_PACKAGE = "cell.signalwatcher";
     ServiceClass mService;
     boolean mBound = false;
 
     private Unbinder unbinder;
+
+    BroadcastClass broadcastClass = null;
+    Boolean registered = false;
 
     @BindView(R.id.tvCid)
     TextView tvCid;
@@ -67,6 +73,8 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
 
         ButterKnife.bind(this, view);
 
+        broadcastClass = new BroadcastClass();
+
         // Bind to LocalService
         Intent intent = new Intent(getActivity(), ServiceClass.class);
         getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
@@ -91,10 +99,8 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
             ServiceClass.LocalBinder binder = (ServiceClass.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
-            tvSignalStr.setText(String.valueOf(signalStrengthDbm));
-            tvServiceSt.setText(status);
-            tvCid.setText(String.valueOf(cid));
-            tvLac.setText(String.valueOf(lac));
+            populateViews();
+
         }
 
         @Override
@@ -102,6 +108,14 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
             mBound = false;
         }
     };
+
+
+    public void populateViews() {
+        tvSignalStr.setText(String.valueOf(signalStrengthDbm));
+        tvServiceSt.setText(status);
+        tvCid.setText(String.valueOf(cid));
+        tvLac.setText(String.valueOf(lac));
+    }
 
     public void checkPermissions() {
 
@@ -144,6 +158,24 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
         }
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        if (!registered) {
+            getActivity().registerReceiver(broadcastClass, new IntentFilter(BROADCAST_PACKAGE));
+        }
+    }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        if (registered) {
+            getActivity().unregisterReceiver(broadcastClass);
+            registered = false;
+        }
+    }
 
     @Override
     public void onDestroyView() {
@@ -154,5 +186,16 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
 
     }
 
+
+    public class BroadcastClass extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            populateViews();
+
+        }
+
+
+    }
 
 }
