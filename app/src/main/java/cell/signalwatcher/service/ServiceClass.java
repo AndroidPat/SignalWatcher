@@ -1,4 +1,4 @@
-package cell.signalwatcher;
+package cell.signalwatcher.service;
 
 import android.app.Service;
 import android.content.Context;
@@ -53,7 +53,7 @@ public class ServiceClass extends Service {
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
     public class LocalBinder extends Binder {
-        ServiceClass getService() {
+        public ServiceClass getService() {
             // Return this instance of LocalService so clients can call public methods
             return ServiceClass.this;
         }

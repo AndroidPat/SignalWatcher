@@ -1,4 +1,4 @@
-<resources>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name">SignalWatcher</string>
     <string name="title_home">Home</string>
     <string name="title_wifi">WiFi</string>
@@ -10,6 +10,8 @@
     <string name="tv_label_cell_location">Cell Location</string>
     <string name="tv_label_singal_strength">Signal Strength</string>
     <string name="tv_label_service_state">Service State</string>
+
+    <string name="format_singal_strength"><xliff:g id="strength">%1$s</xliff:g> dBm</string>
 
 
 </resources>

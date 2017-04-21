@@ -23,11 +23,12 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
+import cell.signalwatcher.service.ServiceClass;
 
-import static cell.signalwatcher.ServiceClass.cid;
-import static cell.signalwatcher.ServiceClass.lac;
-import static cell.signalwatcher.ServiceClass.signalStrengthDbm;
-import static cell.signalwatcher.ServiceClass.status;
+import static cell.signalwatcher.service.ServiceClass.cid;
+import static cell.signalwatcher.service.ServiceClass.lac;
+import static cell.signalwatcher.service.ServiceClass.signalStrengthDbm;
+import static cell.signalwatcher.service.ServiceClass.status;
 
 
 /**
@@ -79,7 +80,6 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
         Intent intent = new Intent(getActivity(), ServiceClass.class);
         getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
-
         checkPermissions();
 
         // Inflate the layout for this fragment
@@ -111,10 +111,12 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
 
 
     public void populateViews() {
-        tvSignalStr.setText(String.valueOf(signalStrengthDbm));
+        String strSingal = String.valueOf(signalStrengthDbm);
+        tvSignalStr.setText(getString(R.string.format_singal_strength, strSingal));
         tvServiceSt.setText(status);
         tvCid.setText(String.valueOf(cid));
         tvLac.setText(String.valueOf(lac));
+
     }
 
     public void checkPermissions() {

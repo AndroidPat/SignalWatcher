@@ -19,9 +19,13 @@
                 <category android:name="android.intent.category.LAUNCHER"/>
             </intent-filter>
         </activity>
-        <service android:name=".ServiceClass"/>
+        <service android:name=".service.ServiceClass"/>
+        <service android:name=".service.WiFiService"/>
     </application>
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
+    <uses-permission android:required="true" android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:required="true" android:name="android.permission.CHANGE_WIFI_STATE"/>
+    <uses-permission android:required="true" android:name="android.permission.INTERNET"/>
 </manifest>
