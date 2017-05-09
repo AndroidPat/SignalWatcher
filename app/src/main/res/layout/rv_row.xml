@@ -5,20 +5,48 @@
                 android:layout_width="match_parent"
                 android:layout_height="100dp">
 
+
+    <ImageView
+        android:id="@+id/listIcon"
+        android:layout_width="80dp"
+        android:layout_height="80dp"
+        android:src="@drawable/ic_w5"
+        android:contentDescription="@string/cd_list_icon"
+        android:layout_gravity="center"
+        android:layout_margin="10dp"
+        />
+
     <TextView
         android:id="@+id/listTitle"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textColor="@color/black"
         android:textSize="18sp"
-        tools:text="Chest and Triceps"
-        android:layout_centerVertical="true"
-        android:layout_centerHorizontal="true"/>
+        tools:text="SSID"
+        android:layout_alignTop="@+id/listIcon"
+        android:layout_toEndOf="@+id/listIcon"
+        />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@android:color/darker_gray"/>
+
+    <TextView
+        android:id="@+id/tvBSSID"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        tools:text="BSSID"
+        android:layout_centerVertical="true"
+        android:layout_alignStart="@+id/listTitle"/>
+
+    <TextView
+        android:id="@+id/tvLevel"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignBottom="@+id/listIcon"
+        android:layout_alignStart="@+id/tvBSSID"
+        tools:text="Signal Level"/>
 
 
 </RelativeLayout>

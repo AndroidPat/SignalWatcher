@@ -12,6 +12,10 @@
     <string name="tv_label_service_state">Service State</string>
 
     <string name="format_singal_strength"><xliff:g id="strength">%1$s</xliff:g> dBm</string>
+    <string name="format_singal_strength_wifi">Signal Strength: <xliff:g id="strength">%1$s</xliff:g> dBm</string>
+    <string name="format_MAC_address">MAC: <xliff:g id="address">%1$s</xliff:g></string>
+
+    <string name="cd_list_icon">WiFi strength icon</string>
 
 
 </resources>

@@ -7,7 +7,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="cell.signalwatcher.MainActivity">
+    tools:context="cell.signalwatcher.ui.MainActivity">
 
     <FrameLayout
         android:id="@+id/content"

@@ -1,26 +1,34 @@
 package cell.signalwatcher.adapters;
 
 import android.content.Context;
-import android.net.wifi.ScanResult;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.TextView;
 
-import java.util.List;
+import com.bumptech.glide.Glide;
+
+import java.util.ArrayList;
 
 import cell.signalwatcher.R;
+import cell.signalwatcher.model.DataPoint;
 
+/**
+ * RecyclerView adapter for the WiFi fragment
+ */
 public class WiFiAdapter extends RecyclerView.Adapter<WiFiAdapter.ViewHolder> {
 
-    public static TextView wiFiTextView;
-    List<ScanResult> mResults;
+    private TextView wiFiTextView, bssidTextView, sigStrengthTextView;
+    private ImageView listIcon;
+    private ArrayList<DataPoint> mResults;
+
 
     private Context mContext;
 
     // Pass in the contact array into the constructor
-    public WiFiAdapter(Context context, List<ScanResult> results) {
+    public WiFiAdapter(Context context, ArrayList<DataPoint> results) {
         mResults = results;
         mContext = context;
     }
@@ -30,12 +38,16 @@ public class WiFiAdapter extends RecyclerView.Adapter<WiFiAdapter.ViewHolder> {
     }
 
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    class ViewHolder extends RecyclerView.ViewHolder {
 
 
-        public ViewHolder(View itemView) {
+        ViewHolder(View itemView) {
             super(itemView);
             wiFiTextView = (TextView) itemView.findViewById(R.id.listTitle);
+            bssidTextView = (TextView) itemView.findViewById(R.id.tvBSSID);
+            sigStrengthTextView = (TextView) itemView.findViewById(R.id.tvLevel);
+            listIcon = (ImageView) itemView.findViewById(R.id.listIcon);
+
         }
     }
 
@@ -55,8 +67,21 @@ public class WiFiAdapter extends RecyclerView.Adapter<WiFiAdapter.ViewHolder> {
 
     @Override
     public void onBindViewHolder(WiFiAdapter.ViewHolder holder, int position) {
-        ScanResult result = mResults.get(position);
-        wiFiTextView.setText(result.SSID);
+
+        String link = mResults.get(position).getImageUrl();
+        String SSID = mResults.get(position).getExtraDataMessage();
+        String BSSID = mResults.get(position).getBssId();
+        String signalStrength = mResults.get(position).getSignalStrength();
+        wiFiTextView.setText(SSID);
+        bssidTextView.setText(BSSID);
+        Glide.with(mContext).load(link).into(listIcon);
+        sigStrengthTextView.setText(signalStrength);
+
+    }
+
+    @Override
+    public int getItemViewType(int position) {
+        return position;
     }
 
     @Override

@@ -1,4 +1,4 @@
-package cell.signalwatcher;
+package cell.signalwatcher.ui;
 
 
 import android.Manifest;
@@ -23,12 +23,13 @@ import android.widget.TextView;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import butterknife.Unbinder;
-import cell.signalwatcher.service.ServiceClass;
+import cell.signalwatcher.R;
+import cell.signalwatcher.service.CellService;
 
-import static cell.signalwatcher.service.ServiceClass.cid;
-import static cell.signalwatcher.service.ServiceClass.lac;
-import static cell.signalwatcher.service.ServiceClass.signalStrengthDbm;
-import static cell.signalwatcher.service.ServiceClass.status;
+import static cell.signalwatcher.service.CellService.cid;
+import static cell.signalwatcher.service.CellService.lac;
+import static cell.signalwatcher.service.CellService.signalStrengthDbm;
+import static cell.signalwatcher.service.CellService.status;
 
 
 /**
@@ -38,14 +39,16 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
 
     public static final int REQUEST_READ_PHONE_STATE = 0;
     public static final int REQUEST_COARSE_LOCATION = 1;
-    public static final String BROADCAST_PACKAGE = "cell.signalwatcher";
-    ServiceClass mService;
+    public static final String CELL_BROADCAST = "cell";
+    CellService mService;
     boolean mBound = false;
 
     private Unbinder unbinder;
 
     BroadcastClass broadcastClass = null;
-    Boolean registered = false;
+    private Boolean registered = false;
+
+    private Boolean permitted1, permitted2 = false;
 
     @BindView(R.id.tvCid)
     TextView tvCid;
@@ -77,7 +80,7 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
         broadcastClass = new BroadcastClass();
 
         // Bind to LocalService
-        Intent intent = new Intent(getActivity(), ServiceClass.class);
+        Intent intent = new Intent(getActivity(), CellService.class);
         getActivity().bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
 
         checkPermissions();
@@ -96,7 +99,7 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
             // We've bound to LocalService, cast the IBinder and get LocalService instance
-            ServiceClass.LocalBinder binder = (ServiceClass.LocalBinder) service;
+            CellService.LocalBinder binder = (CellService.LocalBinder) service;
             mService = binder.getService();
             mBound = true;
             populateViews();
@@ -119,6 +122,11 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
 
     }
 
+    public void startCellService() {
+        Intent intent = new Intent(getActivity(), CellService.class);
+        getActivity().startService(intent);
+    }
+
     public void checkPermissions() {
 
         int permissionCheckPhoneState = ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_PHONE_STATE);
@@ -130,9 +138,10 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
         } else if (permissionCheckLocation != PackageManager.PERMISSION_GRANTED) {
             ActivityCompat.requestPermissions(getActivity(), new String[]{Manifest.permission.ACCESS_COARSE_LOCATION}, REQUEST_COARSE_LOCATION);
         } else {
-            Intent intent = new Intent(getActivity(), ServiceClass.class);
-            getActivity().startService(intent);
+            startCellService();
         }
+
+
     }
 
 
@@ -141,15 +150,13 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
         switch (requestCode) {
             case REQUEST_READ_PHONE_STATE:
                 if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    Intent intent = new Intent(getActivity(), ServiceClass.class);
-                    getActivity().startService(intent);
+                    startCellService();
                 } else {
                     Log.v("CallFragment", "no permission phone_state");
                 }
             case REQUEST_COARSE_LOCATION:
                 if ((grantResults.length > 0) && (grantResults[0] == PackageManager.PERMISSION_GRANTED)) {
-                    Intent intent = new Intent(getActivity(), ServiceClass.class);
-                    getActivity().startService(intent);
+                    startCellService();
                 } else {
                     Log.v("CallFragment", "no permission phone_location");
                     break;
@@ -165,7 +172,7 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
         super.onResume();
 
         if (!registered) {
-            getActivity().registerReceiver(broadcastClass, new IntentFilter(BROADCAST_PACKAGE));
+            getActivity().registerReceiver(broadcastClass, new IntentFilter(CELL_BROADCAST));
             registered = true;
         }
     }
@@ -174,6 +181,12 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
     @Override
     public void onPause() {
         super.onPause();
+
+        if (mBound) {
+            getActivity().unbindService(mConnection);
+            mBound = false;
+        }
+
         if (registered) {
             getActivity().unregisterReceiver(broadcastClass);
             registered = false;
@@ -186,7 +199,6 @@ public class CellSignalFragment extends Fragment implements ActivityCompat.OnReq
         if (unbinder != null) {
             unbinder.unbind();
         }
-
     }
 
 

@@ -29,13 +29,13 @@ import java.io.InputStreamReader;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
-import static cell.signalwatcher.CellSignalFragment.BROADCAST_PACKAGE;
+import static cell.signalwatcher.ui.CellSignalFragment.CELL_BROADCAST;
 
 /**
  * Background service class
  */
 
-public class ServiceClass extends Service {
+public class CellService extends Service {
 
     TelephonyManager mTelephonyManager;
     GetSignalInfo mPhoneStatelistener;
@@ -53,9 +53,9 @@ public class ServiceClass extends Service {
      * runs in the same process as its clients, we don't need to deal with IPC.
      */
     public class LocalBinder extends Binder {
-        public ServiceClass getService() {
+        public CellService getService() {
             // Return this instance of LocalService so clients can call public methods
-            return ServiceClass.this;
+            return CellService.this;
         }
     }
 
@@ -111,7 +111,7 @@ public class ServiceClass extends Service {
             }
 
 
-            Intent i = new Intent(BROADCAST_PACKAGE);
+            Intent i = new Intent(CELL_BROADCAST);
             sendBroadcast(i);
 
             try {
@@ -142,7 +142,7 @@ public class ServiceClass extends Service {
                 signalStrengthDbm = signalStrength.getCdmaDbm();
             }
 
-            Intent i = new Intent(BROADCAST_PACKAGE);
+            Intent i = new Intent(CELL_BROADCAST);
             sendBroadcast(i);
 
             try {
@@ -176,7 +176,7 @@ public class ServiceClass extends Service {
                     break;
             }
 
-            Intent i = new Intent(BROADCAST_PACKAGE);
+            Intent i = new Intent(CELL_BROADCAST);
             sendBroadcast(i);
 
             try {
@@ -193,6 +193,11 @@ public class ServiceClass extends Service {
 
     }
 
+    /**
+     * saving readings to file using JSON format
+     * @throws JSONException
+     * @throws FileNotFoundException
+     */
 
     public void writeToFile() throws JSONException, FileNotFoundException {
         String date = new SimpleDateFormat("dd-MM-yyyy").format(new Date());
